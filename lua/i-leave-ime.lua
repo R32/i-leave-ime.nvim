@@ -17,7 +17,7 @@ local function i_leave_ime(compat)
 	ffi.cdef[[
 		typedef void* HWND;
 		typedef unsigned long DWORD;
-		HWND GetConsoleWindow();
+		HWND GetForegroundWindow();
 		HWND GetWindow(HWND, DWORD);
 		HWND ImmGetDefaultIMEWnd(HWND);
 		size_t SendMessageW(HWND, DWORD, size_t, size_t);
@@ -29,7 +29,7 @@ local function i_leave_ime(compat)
 		 *     - IMC_SETOPENSTATUS               6 (for compat)
 		 */
 	]]
-	local hwnd = ffi.C.GetConsoleWindow()
+	local hwnd = ffi.C.GetForegroundWindow()
 	local wime = ffi.C.GetWindow(hwnd, 3)      -- (GW_HWNDPREV : 3)
 	if ffi.C.GetWindow(wime, 4) ~= hwnd then   -- (GW_OWNER    : 4)
 		wime = ffi.load("imm32").ImmGetDefaultIMEWnd(hwnd)
