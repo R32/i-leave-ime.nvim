@@ -45,6 +45,8 @@ local function i_leave_ime(compat)
 		local flags = 0
 		local mode = e.match
 		if mode:byte(1) == 105 then        -- Insert Mode Leave, 'i' = 105
+			-- e.g : "ic:i" or "i:ix"... (':' is 58)
+			if mode:byte(2) ~= 58 or mode:byte(3) == 105 then return end
 			conversion = tonumber(SMSG(wime, 0x283, 1, 0))
 		elseif mode:byte(-1) == 105 then   -- Insert Mode Enter
 			flags = conversion

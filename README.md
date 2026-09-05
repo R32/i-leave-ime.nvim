@@ -56,7 +56,7 @@ try passing 1 to enable compatibility mode and see if that helps.
 require("i-leave-ime").enable(1)  -- 1 = compatibility mode
 ```
 
-⚠️ **Note:**  When IME is enabled, mapping keys like `jk` to `<ESC>` to exit "INSERT" mode is not supported.
+**Note:**  When IME is enabled, mapping keys like `jk` to `<ESC>` to exit "INSERT" mode is not supported.
 
 
 
@@ -121,4 +121,4 @@ require("i-leave-ime").enable()
 require("i-leave-ime").enable(1) -- 1 : 表示使用兼容模式
 ```
 
-⚠️ **注意:** 在 IME 开启时, **不支持** 将类似于 `jk` 的按键映射到 `<ESC>` 以退出 "编辑模式"
+**注意:** 在 IME 开启时, **不支持** 将类似于 `jk` 的按键映射到 `<ESC>` 以退出 "编辑模式"
