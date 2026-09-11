@@ -1,10 +1,11 @@
 -- SPDX-License-Identifier : MIT
 -- Copyright (C) 2026 LWM
 --
+-- **Windows only**
 -- Automatically turn off IME when leaving Insert mode,
--- and restore previous IME state when entering Insert mode again. (Windows only)
+-- and restore previous IME state when entering Insert mode again.
 --
---   @compat : if something wrong, try setting this value to see if it helps
+--   @compat : if something goes wrong, try setting this value to 1 and see if it helps.
 local function i_leave_ime(compat)
 	if vim.g.cookie_i_leave_ime then
 		-- pcall(vim.api.nvim_del_autocmd, vim.g.cookie_i_leave_ime)
@@ -20,7 +21,7 @@ local function i_leave_ime(compat)
 		HWND GetForegroundWindow();
 		HWND GetWindow(HWND, DWORD);
 		HWND ImmGetDefaultIMEWnd(HWND);
-		size_t SendMessageW(HWND, DWORD, size_t, size_t);
+		int64_t SendMessageW(HWND, DWORD, int64_t, int64_t);
 		/*
 		 * WM_IME_CONTROL                   0x0283
 		 *   wparam :
@@ -38,23 +39,23 @@ local function i_leave_ime(compat)
 		vim.notify("IME Window not found", vim.log.levels.ERROR)
 		return
 	end
-	local ACTION = compat and type(compat) ~= "table" and 6 or 2
-	local SMSG = ffi.C.SendMessageW
-	local conversion = 0
+	local ACTION = compat and type(compat) ~= "table" and 6LL or 2LL
+	local C = ffi.C        -- don't cache C functions, but do cache namespaces!
+	local conversion = 0LL -- (cdata) 64-bit integer literal
 	local function onchanged(e)
-		local flags = 0
+		local flags = 0LL
 		local mode = e.match
 		if mode:byte(1) == 105 then        -- Insert Mode Leave, 'i' = 105
 			-- e.g : "ic:i" or "i:ix"... (':' is 58)
 			if mode:byte(2) ~= 58 or mode:byte(3) == 105 then return end
-			conversion = tonumber(SMSG(wime, 0x283, 1, 0))
+			conversion = C.SendMessageW(wime, 0x283, 1LL, 0LL)
 		elseif mode:byte(-1) == 105 then   -- Insert Mode Enter
 			flags = conversion
 		else
 			return
 		end
-		if bit.band(conversion, 1) == 1 then
-			SMSG(wime, 0x283, ACTION, flags)
+		if bit.band(conversion, 1LL) == 1LL then
+			C.SendMessageW(wime, 0x283, ACTION, flags)
 		end
 	end
 	vim.g.cookie_i_leave_ime = vim.api.nvim_create_autocmd("ModeChanged", {
